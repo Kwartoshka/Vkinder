@@ -1,0 +1,4 @@
+txts
+*.json
+__pycache__
+.idea
