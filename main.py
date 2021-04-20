@@ -36,10 +36,27 @@ for event in longpoll.listen():
             elif request == "подбери мне пару":
                 check = user.what_i_need()
                 if check is None:
-                    pairs = user.get_short_list()
-                    for person in pairs:
-                        attachments = ','.join(person['photos'])
-                        write_msg(event.user_id, f'Ваша пара:\n {person["url"]}', attachments)
+                    pair = user.get_short()
+
+                    attachments = ','.join(pair['photos'])
+                    write_msg(event.user_id, f'Ваша пара:\n {pair["url"]}', attachments)
+                    write_msg(event.user_id, f'Отановить поиск?')
+                    for event_2 in longpoll.listen():
+                        if event_2.type == VkEventType.MESSAGE_NEW:
+                            if event_2.to_me:
+                                request = event_2.text
+                                if request == 'да':
+                                    write_msg(event.user_id, f'Хорошо, удачного знакомства ;)')
+                                    break
+                                elif request == 'нет':
+                                    pair = user.get_short()
+                                    attachments = ','.join(pair['photos'])
+                                    write_msg(event.user_id, f'Ваша пара:\n {pair["url"]}', attachments)
+                                    write_msg(event.user_id, f'Отановить поиск?')
+                                else:
+                                    write_msg(event.user_id, f'Я вас не поняла... Остановить поиск?')
+
+
                 else:
                     write_msg(event.user_id, check)
 

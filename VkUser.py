@@ -150,7 +150,7 @@ class VkUser:
         else:
             return 'Простите, дата рождения введена некорректно'
 
-    def get_users(self):
+    def get_user(self):
         sex_set = {1, 2}
         sex_required = sex_set - {self.data["sex"]}
         byear = [int(point) for point in self.data["bdate"].split('.')][2]
@@ -160,7 +160,7 @@ class VkUser:
         session = Session()
         offset = session.query(User).filter(User.user_vk_id == self.id).first().offset
         resp = requests.get(self.url + 'users.search', params={**self.params, **{
-            'count': 100,
+            'count': 10,
             'offset': offset,
             'sort': 0,
             'age_from': age_from,
@@ -171,23 +171,21 @@ class VkUser:
             'status': self.data["relation"]
 
         }}).json()['response']['items']
-        required_list = []
+        required_person = False
         i = 0
-
-        while len(required_list) < 10:
+        while not required_person:
             person = resp[i]
             used = session.query(User).filter(User.user_vk_id == self.id).first().pairs
             pairs = [pair.pair_vk_id for pair in used]
 
             if not person['is_closed'] and (person['id'] not in pairs):
-                # print(person)
-                required_list.append(person)
+                required_person = person
                 add_pair(person['id'])
                 add_relation(self.id, person['id'], offset)
             offset += 1
             i += 1
 
-        return required_list
+        return required_person
 
     def get_photo_and_weight(self, photo):
         this_photo = {}
@@ -215,32 +213,26 @@ class VkUser:
             photos_list.append(current_photo)
 
         photos_list.sort(key=lambda x: x['weight'], reverse=True)
-        # photos_list = [photo['url'] for photo in photos_list]
         if len(photos_list) < 3:
             return photos_list
         else:
             return photos_list[0:3]
 
-    def get_list_with_photos(self):
-        list_of_users = self.get_users()
-        list_with_photos = []
-        for person in list_of_users:
-            person_data = {}
-            photos = self.get_photos(person['id'])
-            url = 'https://vk.com/id' + str(person['id'])
-            person_data['url'], person_data['photos'] = url, photos
-            list_with_photos.append(person_data)
-        return list_with_photos
+    def get_user_with_photos(self):
+        current_user = self.get_user()
+        person_data = {}
+        photos = self.get_photos(current_user['id'])
+        url = 'https://vk.com/id' + str(current_user['id'])
+        person_data['url'], person_data['photos'] = url, photos
+        return person_data
 
-    def get_short_list(self):
-        data = self.get_list_with_photos()
-        short_list = []
-        for person in data:
-            person_dict = {'url': person['url']}
-            photos_list = []
-            for photo in person['photos']:
-                name = f"photo{photo['owner_id']}_{photo['id']}"
-                photos_list.append(name)
-            person_dict['photos'] = photos_list
-            short_list.append(person_dict)
-        return short_list
+    def get_short(self):
+        data = self.get_user_with_photos()
+        person_dict = {'url': data['url']}
+        photos_list = []
+        for photo in data['photos']:
+            name = f"photo{photo['owner_id']}_{photo['id']}"
+            photos_list.append(name)
+        person_dict['photos'] = photos_list
+
+        return person_dict
