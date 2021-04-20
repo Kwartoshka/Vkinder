@@ -1,7 +1,7 @@
 from model import *
 
 
-def add_user(user_id, data, offset):
+def add_user(user_id, data, offset=0):
     session = Session()
     user = session.query(User).filter(User.user_vk_id == user_id).first()
     if not user:
@@ -32,4 +32,5 @@ def add_relation(user_id, pair_id, offset):
     return
 
 
+session = Session()
 create_schema()
