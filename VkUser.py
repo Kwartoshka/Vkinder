@@ -135,9 +135,9 @@ class VkUser:
         if len(bdate.split('.')) == 3:
             bdate_split = [int(n) for n in bdate.split('.')]
             this_year = int(datetime.datetime.today().strftime('%Y'))
-            if not isinstance(bdate_split[0], int) or not (0 < bdate_split[0] < 31):
+            if not isinstance(bdate_split[0], int) or not (0 < bdate_split[0] < 32):
                 return 'Простите, день рождения введен некорректно'
-            elif not isinstance(bdate_split[1], int) or not (0 < bdate_split[1] < 12):
+            elif not isinstance(bdate_split[1], int) or not (0 < bdate_split[1] < 13):
 
                 return 'Простите, месяц рождения введен некорректно'
             elif not isinstance(bdate_split[2], int) or not (1900 < bdate_split[2] < (this_year - 13)):
