@@ -24,7 +24,7 @@ for event in longpoll.listen():
             if request == "привет":
                 write_msg(event.user_id, f"Хай, {event.user_id}")
             elif request == "пока":
-                write_msg(event.user_id, event.user_id, "Пока((")
+                write_msg(event.user_id, "Пока((")
             elif 'страна ' in request:
                 write_msg(event.user_id, user.country(request))
             elif 'город ' in request:
